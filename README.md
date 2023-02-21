@@ -1,0 +1,1 @@
+This is the official code for the paper "INFORMATION PLANE ANALYSIS FOR DROPOUT NEURAL NETWORKS".
