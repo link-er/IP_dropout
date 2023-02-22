@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 import sys
 sys.path.append('../utils')
-from utils.continuous_dropouts import *
+from utils_local.continuous_dropouts import *
 
 
 class DropoutConvNetw(nn.Module):

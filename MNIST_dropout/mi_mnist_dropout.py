@@ -11,7 +11,7 @@ import pickle
 from dropout_netw import DropoutNetw, DropoutFCNetw
 import sys
 sys.path.append("../utils")
-from utils.collect_repr_callback import CollectRepresentationDistribution
+from utils_local.collect_repr_callback import CollectRepresentationDistribution
 
 # PyTorch Lightning
 import pytorch_lightning as pl

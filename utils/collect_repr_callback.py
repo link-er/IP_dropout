@@ -24,7 +24,7 @@ class CollectRepresentationDistribution(Callback):
                 if saving_train_data:
                     train_inputs += b.detach().cpu().numpy().tolist()
                     train_labels += l.detach().cpu().numpy().tolist()
-            np.save(self.directory / "no_noise_train_representations_"+str(epoch), np.array(no_noise_train_representations))
+            np.save(self.directory / ("no_noise_train_representations_"+str(epoch)), np.array(no_noise_train_representations))
             if saving_train_data:
                 np.save(self.directory / "train_inputs", np.array(train_inputs))
                 np.save(self.directory / "train_labels", np.array(train_labels))
@@ -43,7 +43,7 @@ class CollectRepresentationDistribution(Callback):
                 if saving_test_data:
                     test_inputs += b.detach().cpu().numpy().tolist()
                     test_labels += l.detach().cpu().numpy().tolist()
-            np.save(self.directory / "no_noise_test_representations_"+str(epoch), np.array(no_noise_test_representations))
+            np.save(self.directory / ("no_noise_test_representations_"+str(epoch)), np.array(no_noise_test_representations))
             if saving_test_data:
                 np.save(self.directory / "test_inputs", np.array(test_inputs))
                 np.save(self.directory / "test_labels", np.array(test_labels))

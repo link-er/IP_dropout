@@ -1,4 +1,3 @@
-import time
 import torch
 import torch.utils.data as dt
 import torchvision.transforms as transforms
@@ -6,29 +5,22 @@ import torchvision.datasets as tdatasets
 import torch.nn.functional as F
 import torchmetrics.classification.accuracy as torch_acc
 import numpy as np
-import os
+from pathlib import Path
 import pickle
 
 from dropout_netw import create_ResNet_model
 import sys
 sys.path.append("../utils")
-from utils.collect_repr_callback import CollectRepresentationDistribution
+from utils_local.collect_repr_callback import CollectRepresentationDistribution
 
 # PyTorch Lightning
 import pytorch_lightning as pl
 
 pl.seed_everything(hash("setting random seeds") % 2 ** 32 - 1)
 
-# Weights & Biases
-import wandb
-
-wandb.login(key='...')
-
-from pytorch_lightning.loggers import WandbLogger
-
 LR = 0.05
 BS = 64
-EPOCHS = 200
+EPOCHS = 1
 #FILTER_PERC = 1.0
 #BETA = 10.0
 DRP_METHOD = 'gaussian'
@@ -54,10 +46,10 @@ class CIFAR10DataModule(pl.LightningDataModule):
     def setup(self, stage=None):
         # we set up only relevant datasets when stage is specified
         if stage == 'fit' or stage is None:
-            self.cifar10_train = tdatasets.CIFAR10(self.data_dir, train=True, transform=self.train_transform)
-            self.cifar10_val = tdatasets.CIFAR10(self.data_dir, train=False, transform=self.test_transform)
+            self.cifar10_train = tdatasets.CIFAR10(self.data_dir, download=True, train=True, transform=self.train_transform)
+            self.cifar10_val = tdatasets.CIFAR10(self.data_dir, download=True, train=False, transform=self.test_transform)
         if stage == 'test' or stage is None:
-            self.cifar10_test = tdatasets.CIFAR10(self.data_dir, train=False, transform=self.test_transform)
+            self.cifar10_test = tdatasets.CIFAR10(self.data_dir, download=True, train=False, transform=self.test_transform)
 
     # we define a separate DataLoader for each of train/val/test
     def train_dataloader(self):
@@ -122,9 +114,6 @@ class LitDropoutNet(pl.LightningModule):
     # lightning hook to add an optimizer
     def configure_optimizers(self):
         lr = LR
-        self.logger.experiment.config.optimizer = 'SGD'
-        self.logger.experiment.config.lr = lr
-        self.logger.experiment.config.scheduler = 'one_cycle_lr'
         optimizer = torch.optim.SGD(
             self.core.parameters(),
             lr=lr,
@@ -193,9 +182,6 @@ class LitDropoutNet(pl.LightningModule):
         return outputs
 
 
-wandb_logger = WandbLogger(project="cifar10_resnet")
-
-wandb_logger.experiment.config.bs = BS
 # setup data
 cifar10 = CIFAR10DataModule(data_dir="datasets", batch_size=BS)
 cifar10.prepare_data()
@@ -204,10 +190,11 @@ cifar10.setup()
 # setup model
 # dropout method one of: standard, gaussian, information
 model = LitDropoutNet(dropout_method=DRP_METHOD)
-# wandb_logger.watch(model, log="all") # logging all gradients, seen only for individual run
+
+if not Path("representations").exists():
+    Path("representations").mkdir()
 
 trainer = pl.Trainer(
-    logger=wandb_logger,  # W&B integration
     log_every_n_steps=101,  # set the logging frequency
     gpus=1,  # use all GPUs
     max_epochs=EPOCHS,  # number of epochs
@@ -217,6 +204,9 @@ trainer = pl.Trainer(
 
 # fit the model
 trainer.fit(model, cifar10)
+
+if not Path("IP").exists():
+    Path("IP").mkdir()
 
 train_mi_xz = {}
 train_mi_zy = {}
@@ -235,8 +225,4 @@ pickle.dump(val_mi_zy, open('IP/val_mi_zy', "wb"))
 # evaluate the model on a test set
 trainer.test(datamodule=cifar10, ckpt_path=None)  # uses last-saved model
 
-torch.save(model.core.state_dict(), 'models/'+model.core.saveName()+"_"+str(int(time.time())))
-
-
-# wandb.finish()
 
