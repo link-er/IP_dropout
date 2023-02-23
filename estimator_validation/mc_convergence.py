@@ -4,7 +4,6 @@ import math
 import argparse
 import matplotlib
 import matplotlib.pyplot as plt
-import pickle
 
 NOISE_SAMPLES = 10
 NOISE = 0.1
@@ -50,5 +49,3 @@ i = 0
 ax1.plot(list(mc.keys()), list(mc.values()), label="MC estimate h(Z|X)", color=colors[i])
 ax1.legend(loc='best')
 plt.show()
-
-pickle.dump(mc, open("mc_convergence/data_dim_" + str(args.DIM) + "noise_" + str(NOISE), "wb"))

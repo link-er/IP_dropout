@@ -7,6 +7,7 @@ import torch.nn.functional as F
 import torchmetrics.classification.accuracy as torch_acc
 import numpy as np
 import pickle
+from pathlib import Path
 
 from dropout_netw import DropoutNetw, DropoutFCNetw
 import sys
@@ -18,16 +19,9 @@ import pytorch_lightning as pl
 
 pl.seed_everything(hash("setting random seeds") % 2 ** 32 - 1)
 
-# Weights & Biases
-import wandb
-
-wandb.login(key='...')
-
-from pytorch_lightning.loggers import WandbLogger
-
 LR = 0.1
 BS = 256
-EPOCHS = 200
+EPOCHS = 2 #00
 BETA = 3.0
 DRP_METHOD = 'gaussian'
 P = 0.2
@@ -114,8 +108,6 @@ class LitDropoutNet(pl.LightningModule):
     # lightning hook to add an optimizer
     def configure_optimizers(self):
         lr = LR
-        self.logger.experiment.config.optimizer = 'SGD'
-        self.logger.experiment.config.lr = lr
         #optimizer = torch.optim.Adam(self.parameters(), lr=lr, weight_decay=0.001)
         optimizer = torch.optim.SGD(self.parameters(), lr=lr, weight_decay=0.001, momentum=0.9)
         scheduler_dict = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS)
@@ -180,9 +172,6 @@ class LitDropoutNet(pl.LightningModule):
         return outputs
 
 
-wandb_logger = WandbLogger(project="mnist_dropout")
-
-wandb_logger.experiment.config.bs = BS
 # setup data
 mnist = MnistDataModule(data_dir="datasets", batch_size=BS)
 mnist.prepare_data()
@@ -191,10 +180,11 @@ mnist.setup()
 # setup model
 # dropout method one of: standard, gaussian, information
 model = LitDropoutNet(beta=BETA, p=P, dropout_method=DRP_METHOD)
-# wandb_logger.watch(model, log="all") # logging all gradients, seen only for individual run
+
+if not Path("representations").exists():
+    Path("representations").mkdir()
 
 trainer = pl.Trainer(
-    logger=wandb_logger,  # W&B integration
     log_every_n_steps=101,  # set the logging frequency
     gpus=1,  # use all GPUs
     max_epochs=EPOCHS,  # number of epochs
@@ -204,6 +194,9 @@ trainer = pl.Trainer(
 
 # fit the model
 trainer.fit(model, mnist)
+
+if not Path("IP").exists():
+    Path("IP").mkdir()
 
 train_mi_xz = {}
 train_mi_zy = {}
@@ -221,9 +214,3 @@ pickle.dump(val_mi_zy, open('IP/val_mi_zy', "wb"))
 
 # evaluate the model on a test set
 trainer.test(datamodule=mnist, ckpt_path=None)  # uses last-saved model
-
-torch.save(model.core.state_dict(), 'models/'+model.core.saveName()+"_"+str(int(time.time())))
-
-
-# wandb.finish()
-

@@ -2,7 +2,7 @@ import collections
 import numpy as np
 import math
 import sys
-sys.path.append('../mi_estimators')
+sys.path.append('../')
 from mi_estimators_local.EDGE_4_3_1 import EDGE
 from mi_estimators_local.npeet.entropy_estimators import midd
 import argparse
@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 from pomegranate import *
 from tqdm import *
 from sklearn.covariance import ledoit_wolf
-import pickle
 
 CMAP = matplotlib.cm.get_cmap('viridis')
 DRAW_HISTS = False
@@ -179,8 +178,3 @@ ax2.plot(list(binning_by_size.keys()), list(binning_by_size.values()), label="bi
 ax1.legend(loc='upper left')
 ax2.legend()
 plt.show()
-
-pickle.dump(PLOT_VALUES, open("mi_comparison/data_plot_values_dim_" + str(args.DIM) + "noise_" + str(NOISE), "wb"))
-pickle.dump(binning_by_num, open("mi_comparison/data_binning_by_num_dim_" + str(args.DIM) + "noise_" + str(NOISE), "wb"))
-pickle.dump(binning_by_size, open("mi_comparison/data_binning_by_size_dim_" + str(args.DIM) + "noise_" + str(NOISE), "wb"))
-

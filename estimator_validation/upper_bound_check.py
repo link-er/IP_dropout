@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 from pomegranate import *
 from tqdm import *
 from sklearn.covariance import ledoit_wolf
-import pickle
 
 NOISE_SAMPLES = 10
 NOISE = 0.4
@@ -77,7 +76,3 @@ i = 1
 ax1.plot(list(mixture.keys()), list(mixture.values()), label="Mixture estimate", color=colors[i])
 ax1.legend(loc='best')
 plt.show()
-
-pickle.dump(upper, open("upper_bound_hz/data_upper_dim_" + str(args.DIM) + "noise_" + str(NOISE), "wb"))
-pickle.dump(mixture, open("upper_bound_hz/data_mixture_dim_" + str(args.DIM) + "noise_" + str(NOISE), "wb"))
-
