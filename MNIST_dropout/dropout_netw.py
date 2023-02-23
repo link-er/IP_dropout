@@ -3,8 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import sys
-sys.path.append('../utils')
-from utils_local.continuous_dropouts import *
+sys.path.append('..')
+from utils.continuous_dropouts import *
 
 class DropoutNetw(nn.Module):
     def __init__(self, p, dropout_method='information'):

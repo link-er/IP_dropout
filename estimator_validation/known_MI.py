@@ -3,8 +3,8 @@ import numpy as np
 import math
 import sys
 sys.path.append('../')
-from mi_estimators_local.EDGE_4_3_1 import EDGE
-from mi_estimators_local.npeet.entropy_estimators import midd
+from mi_estimators.EDGE_4_3_1 import EDGE
+from mi_estimators.npeet.entropy_estimators import midd
 import argparse
 import matplotlib
 import matplotlib.pyplot as plt

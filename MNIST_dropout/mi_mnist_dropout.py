@@ -11,8 +11,8 @@ from pathlib import Path
 
 from dropout_netw import DropoutNetw, DropoutFCNetw
 import sys
-sys.path.append("../utils")
-from utils_local.collect_repr_callback import CollectRepresentationDistribution
+sys.path.append("..")
+from utils.collect_repr_callback import CollectRepresentationDistribution
 
 # PyTorch Lightning
 import pytorch_lightning as pl
@@ -21,7 +21,7 @@ pl.seed_everything(hash("setting random seeds") % 2 ** 32 - 1)
 
 LR = 0.1
 BS = 256
-EPOCHS = 2 #00
+EPOCHS = 200
 BETA = 3.0
 DRP_METHOD = 'gaussian'
 P = 0.2

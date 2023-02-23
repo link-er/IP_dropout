@@ -11,7 +11,7 @@ import pickle
 from dropout_netw import create_ResNet_model
 import sys
 sys.path.append("../utils")
-from utils_local.collect_repr_callback import CollectRepresentationDistribution
+from utils.collect_repr_callback import CollectRepresentationDistribution
 
 # PyTorch Lightning
 import pytorch_lightning as pl
@@ -20,7 +20,7 @@ pl.seed_everything(hash("setting random seeds") % 2 ** 32 - 1)
 
 LR = 0.05
 BS = 64
-EPOCHS = 1
+EPOCHS = 200
 #FILTER_PERC = 1.0
 #BETA = 10.0
 DRP_METHOD = 'gaussian'
